@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS AI COACH - 阅读精读特训中心 6.0 Dual</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root { 
+            --sidebar-bg: #ffffff; 
+            --main-bg: #f5f7fa; 
+            --card-bg: #ffffff;
+            --accent-blue: #2563eb; 
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --card-border: #e2e8f0;
+            --tag-green: #10b981;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; 
+            background: var(--main-bg); 
+            color: var(--text-dark); 
+            margin: 0; 
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .wrapper { 
+            max-width: 1440px; 
+            margin: 0 auto; 
+            display: grid; 
+            grid-template-columns: 290px 1fr; 
+            gap: 22px; 
+            align-items: start;
+        }
+        
+        .sidebar { 
+            background: var(--sidebar-bg); 
+            border-radius: 24px; 
+            padding: 24px; 
+            color: var(--text-dark); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 20px rgba(15,23,42,0.02);
+            min-height: 820px;
+        }
+        
+        .profile-section { 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            border-bottom: 1px solid var(--card-border); 
+            padding-bottom: 18px; 
+        }
+        .profile-badge { 
+            background: #f0fdf4; 
+            color: var(--tag-green); 
+            font-size: 16px; 
+            font-weight: 800; 
+            width: 46px; 
+            height: 46px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border: 2px solid #bbf7d0;
+        }
+        .profile-info h4 { margin: 0; font-size: 14px; font-weight: 700; color: var(--text-dark); letter-spacing: 0.3px; }
+        .profile-info p { margin: 4px 0 0 0; font-size: 11px; color: var(--tag-green); font-weight: 600; }
+
+        .menu-list { display: flex; flex-direction: column; gap: 6px; }
+        .menu-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            color: #475569; 
+            font-size: 13.5px; 
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        .menu-item:hover { background: #f1f5f9; color: var(--text-dark); }
+        .menu-item.active { 
+            background: #eff6ff; 
+            color: var(--accent-blue); 
+            font-weight: 700; 
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .main-content { display: flex; flex-direction: column; gap: 20px; }
+        .view-pane { display: none; flex-direction: column; gap: 20px; }
+        .view-pane.active { display: flex; }
+
+        .db-search-wrapper { position: relative; width: 100%; }
+        .db-search-box { 
+            background: white; 
+            border: 1px solid var(--card-border); 
+            border-radius: 14px; 
+            padding: 12px 16px 12px 42px; 
+            font-size: 13px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            color: var(--text-dark);
+            box-shadow: 0 2px 10px rgba(15,23,42,0.01);
+            transition: 0.2s;
+        }
+        .db-search-box:focus { border-color: var(--accent-blue); outline: none; background: #fff; box-shadow: 0 4px 14px rgba(37,99,235,0.05); }
+        .db-search-box::placeholder { color: #a0aec0; }
+        .db-search-wrapper i { position: absolute; left: 15px; top: 15px; color: #94a3b8; font-size: 14px; z-index: 10; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .stat-card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 20px; 
+            border: 1px solid var(--card-border); 
+            box-shadow: 0 2px 12px rgba(15,23,42,0.01);
+        }
+        .stat-card .title { font-size: 12px; color: var(--text-muted); font-weight: bold; }
+        .stat-card .num { font-size: 32px; font-weight: 800; color: var(--text-dark); margin-top: 8px; display: flex; align-items: baseline; gap: 4px; }
+        .stat-card .unit { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+
+        /* 📡 升级：高阶引擎选择器开关 */
+        .engine-selector { display: flex; background: #f1f5f9; padding: 4px; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        .engine-btn { flex: 1; border: none; background: none; padding: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 8px; color: #64748b; transition: 0.2s; }
+        .engine-btn.active { background: white; color: var(--accent-blue); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+
+        .config-bar { background: white; border-radius: 16px; padding: 14px 20px; border: 1px solid var(--card-border); display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 12px rgba(15,23,42,0.01); }
+        .config-inputs { display: flex; gap: 12px; width: 100%; align-items: center; }
+        .config-inputs input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; box-sizing: border-box; background: #f8fafc; color: var(--text-dark); transition: 0.2s; }
+        .config-inputs input:focus { border-color: var(--accent-blue); background: #fff; outline: none; }
+
+        .panel-card { background: white; border-radius: 20px; padding: 25px; border: 1px solid var(--card-border); box-shadow: 0 4px 24px rgba(15,23,42,0.01); }
+        .panel-title { font-size: 15px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        
+        .source-text-box { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid var(--accent-blue); padding: 16px; border-radius: 12px; font-size: 14.5px; margin-bottom: 15px; white-space: pre-wrap; line-height: 1.6; color: #334155;}
+        .input-error-field { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; box-sizing: border-box; margin-bottom: 15px; background: #f8fafc; }
+
+        .btn-ai { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 4px 14px rgba(37,99,235,0.15); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
+        .table-container { width: 100%; overflow-x: auto; margin-top: 10px; }
+        .track-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .track-table th, .track-table td { padding: 14px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+        .track-table th { color: var(--text-muted); font-weight: 600; background: #f8fafc; border-top: 1px solid #edf2f7; border-bottom: 1px solid #edf2f7; }
+        .badge-table-part { background: #eff6ff; color: var(--accent-blue); font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; border: 1px solid #bfdbfe; }
+        
+        .corpus-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-top: 10px; }
+        .corpus-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; cursor: pointer; transition: 0.2s; }
+        .corpus-card:hover { border-color: var(--accent-blue); background: #fff; }
+        .corpus-preview { font-size: 13.5px; font-weight: 600; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* AI 解析报告排版 */
+        .ai-output { line-height: 1.8; padding: 5px 0; }
+        .ai-output h3 { color: var(--accent-blue); border-bottom: 2px solid #edf2f7; padding-bottom: 8px; font-size: 16.5px; margin-top: 35px; font-weight: 800; }
+        .ai-output h4 { color: #1e293b; font-size: 14.5px; margin-top: 20px; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; display: inline-block; font-weight: 700;}
+        .ai-output table { width: 100%; border-collapse: collapse; margin: 15px 0; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .ai-output th, .ai-output td { padding: 12px; font-size: 13px; border-bottom: 1px solid #edf2f7; }
+        .ai-output th { background: #f8fafc; font-weight: bold; }
+        .highlight-word { font-weight: bold; color: #b45309; background: #fef3c7; padding: 2px 6px; border-radius: 4px; border: 1px solid #fde68a; }
+        
+        #loading { display: none; text-align: center; color: var(--text-muted); font-weight: bold; margin-top: 20px; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="sidebar">
+        <div class="profile-section">
+            <div class="profile-badge">6.5</div>
+            <div class="profile-info">
+                <h4>阅读特训专属舱</h4>
+                <p>Target Level: Band 7.5+</p>
+            </div>
+        </div>
+        
+        <div class="menu-list">
+            <button class="menu-item active" id="menu-dashboard" onclick="showView('dashboard')">
+                <i class="ph-bold ph-chart-pie-slice" style="color: var(--accent-blue); font-size: 16px;"></i> 📊 首页 进度Dashboard总览
+            </button>
+            <button class="menu-item" id="menu-word" onclick="showView('word')">
+                <i class="ph-bold ph-text-aa" style="color: var(--tag-green); font-size: 16px;"></i> 📚 Vocabulary去重总库
+            </button>
+            <button class="menu-item" id="menu-sentence" onclick="showView('sentence')">
+                <i class="ph-bold ph-tree-structure" style="color: #8b5cf6; font-size: 16px;"></i> 🔍 精读盲点长难句精析
+            </button>
+        </div>
+        
+        <div style="margin-top: auto; border-top: 1px solid var(--card-border); padding-top: 12px; display: flex; flex-direction: column; gap: 6px;">
+            <button class="menu-item" style="font-size: 11px; padding: 6px; color:#ef4444;" onclick="clearAllHistory()"><i class="ph-bold ph-trash"></i> 🧹 归零还原系统环境</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="config-bar">
+            <div class="engine-selector">
+                <button class="engine-btn active" id="engine-gemini" onclick="switchEngine('gemini')">🤖 Google Gemini 引擎</button>
+                <button class="engine-btn" id="engine-deepseek" onclick="switchEngine('deepseek')">🐳 DeepSeek 曜石引擎</button>
+            </div>
+            <div class="config-inputs">
+                <i class="ph-bold ph-keyholder" style="color:var(--text-muted); font-size: 16px;"></i>
+                <input type="password" id="api-key" placeholder="填入对应内核的 API Key" style="flex: 2;">
+                <input type="text" id="api-model" value="gemini-1.5-flash" placeholder="模型名称" style="flex: 1;">
+            </div>
+        </div>
+
+        <div id="view-dashboard" class="view-pane active">
+            <div class="db-search-wrapper">
+                <i class="ph-bold ph-magnifying-glass"></i>
+                <input type="text" id="db-search-input" class="db-search-box" oninput="refreshDashboard()" placeholder="快捷搜索引擎：输入日期、章节(Part 1)或文章名字动态检索足迹...">
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="title">累计复盘篇章数</div>
+                    <div class="num" id="stat-titles">0 <span class="unit">篇</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="title">滚动核心去重词库</div>
+                    <div class="num" id="stat-words">0 <span class="unit">个</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="title">精听攻克长难句量</div>
+                    <div class="num" id="stat-sentences">0 <span class="unit">句</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="title">动态平均BAND预测</div>
+                    <div class="num" style="color: var(--tag-green);" id="stat-band">0.0 <span class="unit">分</span></div>
+                </div>
+            </div>
+
+            <div class="panel-card" id="live-workspace">
+                <div class="panel-title">
+                    <i class="ph-bold ph-lightning" style="color: var(--accent-blue);"></i>
+                    <span id="current-part" class="badge-table-part">Part 1</span>
+                    <span id="current-title" style="color: var(--text-dark); margin-left: 8px; font-weight: 700;">等待打包投递...</span>
+                </div>
+                <div class="source-text-box" id="source-text">等待从阅读网页传送数据...</div>
+                
+                <input type="text" id="wrong-questions-input" class="input-error-field" placeholder="✍️ 在此手工登记本次错题（例如：单选题错2题 / 第5、12题错）">
+
+                <button class="btn-ai" onclick="startAIAnalysis()">🚀 唤醒 AI 启动智能多维解构</button>
+                <div id="loading">⏳ 正在命令 AI 逐句拆解语料，建立真题替换档案，请稍候...</div>
+                <div class="ai-output" id="ai-output-box"></div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title"><i class="ph-bold ph-calendar-blank" style="color:var(--text-muted);"></i> 🗓️ 板块一：长期精读做题足迹纵向追踪表</div>
+                <div class="table-container">
+                    <table class="track-table">
+                        <thead>
+                            <tr>
+                                <th>复盘训练日期</th>
+                                <th>阅读真题篇章材料</th>
+                                <th>错误失分项</th>
+                                <th>核心词新增</th>
+                                <th>难句攻克数</th>
+                                <th>单篇预计 Band</th>
+                            </tr>
+                        </thead>
+                        <tbody id="track-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-word" class="view-pane"><div class="panel-card"><div class="panel-title">📚 滚动去重词汇存储仓</div><input type="text" id="search-word" oninput="renderCorpusList('word')" class="db-search-box" placeholder="在此检索词汇..."><div class="corpus-grid" id="word-corpus-list"></div></div></div>
+        <div id="view-sentence" class="view-pane"><div class="panel-card"><div class="panel-title">🔍 盲点长难句语法骨架库</div><input type="text" id="search-sentence" oninput="renderCorpusList('sentence')" class="db-search-box" placeholder="在此检索长难句..."><div class="corpus-grid" id="sentence-corpus-list"></div></div></div>
+
+        <div class="panel-card" id="global-inspector-card" style="display: none; margin-top: 10px;">
+            <div class="panel-title" style="justify-content: space-between;"><span id="inspect-header">📋 语料档案查阅台</span><button style="border:none; background:none; cursor:pointer;" onclick="document.getElementById('global-inspector-card').style.display='none'"><i class="ph-bold ph-x"></i></button></div>
+            <div class="source-text-box" id="inspect-source-text"></div>
+            <div class="ai-output" id="inspect-ai-output"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeEngine = 'gemini';
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedText = urlParams.get('text');
+    const partInfo = urlParams.get('part') || 'Part 1';
+    const titleInfo = urlParams.get('title') || '未知文章';
+
+    if(selectedText) { 
+        document.getElementById('source-text').innerText = selectedText;
+        document.getElementById('current-part').innerText = partInfo;
+        document.getElementById('current-title').innerText = titleInfo;
+        document.getElementById('live-workspace').style.display = 'block';
+    } else {
+        document.getElementById('live-workspace').style.display = 'none';
+    }
+
+    // 引擎记忆读取
+    if(localStorage.getItem('active_engine')) {
+        activeEngine = localStorage.getItem('active_engine');
+        switchEngine(activeEngine);
+    } else {
+        restoreKeys('gemini');
+    }
+    
+    refreshDashboard();
+
+    function switchEngine(engine) {
+        activeEngine = engine;
+        localStorage.setItem('active_engine', engine);
+        document.getElementById('engine-gemini').classList.toggle('active', engine === 'gemini');
+        document.getElementById('engine-deepseek').classList.toggle('active', engine === 'deepseek');
+        
+        if(engine === 'gemini') {
+            document.getElementById('api-model').value = localStorage.getItem('gemini_model_name') || 'gemini-1.5-flash';
+            document.getElementById('api-key').value = localStorage.getItem('gemini_api_key') || '';
+            document.getElementById('api-key').placeholder = "填入 Gemini API Key (AIzaSy...)";
+        } else {
+            document.getElementById('api-model').value = localStorage.getItem('deepseek_model_name') || 'deepseek-chat';
+            document.getElementById('api-key').value = localStorage.getItem('deepseek_api_key') || '';
+            document.getElementById('api-key').placeholder = "填入 DeepSeek API Key (sk-...)";
+        }
+    }
+
+    function showView(viewId) {
+        document.querySelectorAll('.menu-item').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.view-pane').forEach(pane => pane.classList.remove('active'));
+        document.getElementById('menu-' + viewId).classList.add('active');
+        document.getElementById('view-' + viewId).classList.add('active');
+        if(viewId !== 'dashboard') renderCorpusList(viewId);
+    }
+
+    function refreshDashboard() {
+        let history = JSON.parse(localStorage.getItem('ielts_db_pro_v5')) || [];
+        let query = document.getElementById('db-search-input') ? document.getElementById('db-search-input').value.toLowerCase().trim() : '';
+        let articles = history.map(item => item.title);
+        let uniqueArticles = [...new Set(articles)].filter(t => t && t !== '未知文章');
+        
+        let totalWords = 0, totalSentences = 0;
+        history.forEach(item => { totalWords += (item.wCount || 0); totalSentences += (item.sCount || 0); });
+
+        document.getElementById('stat-titles').innerHTML = uniqueArticles.length + ' <span class="unit">篇</span>';
+        document.getElementById('stat-words').innerHTML = totalWords + ' <span class="unit">个</span>';
+        document.getElementById('stat-sentences').innerHTML = totalSentences + ' <span class="unit">句</span>';
+        
+        let baseBand = 5.5 + (uniqueArticles.length * 0.3) + (totalSentences * 0.1);
+        if(baseBand > 8.5) baseBand = 8.5;
+        document.getElementById('stat-band').innerHTML = (history.length === 0 ? '0.0' : baseBand.toFixed(1)) + ' <span class="unit">分</span>';
+
+        let tableBody = document.getElementById('track-table-body');
+        if(uniqueArticles.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px;">📂 长期精读足迹为空，划词打包投递吧！</td></tr>`;
+            return;
+        }
+
+        let filtered = uniqueArticles.filter(artTitle => {
+            let artItems = history.filter(item => item.title === artTitle);
+            let artDate = artItems[0].time.split(' ')[0];
+            return !query || artTitle.toLowerCase().includes(query) || artDate.toLowerCase().includes(query);
+        });
+
+        tableBody.innerHTML = filtered.map(artTitle => {
+            let artItems = history.filter(item => item.title === artTitle);
+            let artDate = artItems[0].time.split(' ')[0];
+            let wSum = 0, sSum = 0;
+            artItems.forEach(item => { wSum += (item.wCount || 0); sSum += (item.sCount || 0); });
+            let errorLog = artItems[0].errorText ? artItems[0].errorText : "无错题登记";
+            return `<tr onclick="filterAndShowArticle('${artTitle.replace(/'/g, "\\'")}')"><td>${artDate}</td><td><span class="badge-table-part">${artItems[0].part}</span> <strong>${artTitle}</strong></td><td style="color:#ef4444">${errorLog}</td><td style="color:var(--accent-blue)">${wSum} 个</td><td style="color:#8b5cf6">${sSum} 句</td><td style="color:var(--tag-green)">${(6.0 + wSum*0.1 + sSum*0.2).toFixed(1)} 分</td></tr>`;
+        }).join('');
+    }
+
+    function filterAndShowArticle(titleKey) { showView('word'); document.getElementById('search-word').value = titleKey; renderCorpusList('word'); }
+
+    function renderCorpusList(type) {
+        let history = JSON.parse(localStorage.getItem('ielts_db_pro_v5')) || [];
+        let query = document.getElementById('search-' + type).value.toLowerCase().trim();
+        let container = document.getElementById(type + '-corpus-list');
+        let filtered = history.filter(item => { return (type === 'word' ? item.wCount > 0 : item.sCount > 0) && (!query || item.text.toLowerCase().includes(query) || item.title.toLowerCase().includes(query)); });
+        window.currentFiltered = filtered;
+        container.innerHTML = filtered.map((item, index) => `<div class="corpus-card" onclick="inspectArchiveItem(${index})"><div class="corpus-meta"><span class="badge-table-part">${item.part}</span><span>${item.title}</span></div><div class="corpus-preview">${item.text}</div></div>`).join('');
+    }
+
+    function inspectArchiveItem(index) {
+        let matched = window.currentFiltered[index];
+        if(matched) {
+            document.getElementById('global-inspector-card').style.display = 'block';
+            document.getElementById('inspect-header').innerText = `📋 《${matched.title}》· 精读语料档案`;
+            document.getElementById('inspect-source-text').innerText = matched.text;
+            document.getElementById('inspect-ai-output').innerHTML = matched.result;
+        }
+    }
+
+    // 🤖 终极合体：兼容双引擎的智能大解析网络电路
+    async function startAIAnalysis() {
+        const text = document.getElementById('source-text').innerText;
+        const apiKey = document.getElementById('api-key').value.trim();
+        const model = document.getElementById('api-model').value.trim();
+        const part = document.getElementById('current-part').innerText;
+        const title = document.getElementById('current-title').innerText;
+        const customError = document.getElementById('wrong-questions-input').value.trim();
+
+        if(!apiKey || text.includes('等待从阅读网页')) return alert('请填入 Key 并在右侧携带文本！');
+        
+        // 分别记忆各自引擎的值
+        localStorage.setItem(activeEngine + '_api_key', apiKey);
+        localStorage.setItem(activeEngine + '_model_name', model);
+
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('ai-output-box').innerHTML = '';
+
+        const prompt = "你是一个拥有15年经验的顶级雅思阅读精读名师。当前我正在精读学术文章：雅思阅读【" + part + "】 里面的 《" + title + "》。\n" +
+        "现在递交给你的是一份【混合了词汇短语和长难句】的打包复盘笔记。请你必须把它们彻底拆开，按以下极其严整的 HTML 序号（1, 2, 3...）排版格式独立详细输出，绝对不允许把不同句子的翻译分析混在一起：\n\n" +
+        "输入语料内容如下：\n\"\"\"" + text + "\"\"\"\n\n" +
+        "<h3>🔤 第一部分：核心词汇与短语穿梭档案（请用序号 1, 2, 3... 列出）</h3>\n" +
+        "针对输入中所有的生词或短语，逐一拆解输出：\n" +
+        "- 给出明确的数字序号、音标、词性、以及在本篇真题学术语境下的【精准释义】。\n" +
+        "- 同义替换对照表：每一个词汇或短语单独生成一个完整的 HTML table 表格，左边列是该生词，右边列是它在雅思真题中最常考的 3-4 个改写或替换词。\n\n" +
+        "<h3>📝 第二部分：盲点长难句语法骨架与独立精译（请用序号 1, 2, 3... 列出）</h3>\n" +
+        "针对输入中所有的完整句子，必须进行【独立解剖】，多句话必须按序号分开翻译！每句话单独包含以下四个子模块：\n" +
+        "<h4>句式 1 / 2 / 3（清晰独立标注）</h4>\n" +
+        "1. 【权威真题独立精译】：给出符合学术规范、信达雅的完整中文翻译（绝不允许合并段落！）。\n" +
+        "2. 【句式骨架解剖】：用精简符号和文字，清晰拆解该句的核心主谓宾主干，以及复杂的后置定语、分词结构或从句修饰成分，帮我理清逻辑。\n" +
+        "3. 【核心词汇微操】：提取出本句话中最具学术价值的 2 个考点词，结合上下文说明含义。必须用 span 标签（class为highlight-word）将核心词包裹标注。\n" +
+        "4. 【雅思防坑避雷指南】：指出如果雅思真题针对这句话出判断题或选择题，会在哪个语法转折或修饰成分上挖陷阱。\n\n" +
+        "⚠️ 严厉要求：直接输出原生 HTML 格式内容。绝对绝对不要使用任何代码块标记来包裹代码！不要输出任何废话开场白或结束语。";
+
+        let fetchUrl = "";
+        let fetchOptions = {};
+
+        // ⚡ 根据开关动态组装传输线路
+        if(activeEngine === 'gemini') {
+            fetchUrl = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
+            fetchOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            };
+        } else {
+            fetchUrl = `https://api.deepseek.com/v1/chat/completions`;
+            fetchOptions = {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [{ role: 'user', content: prompt }],
+                    temperature: 0.3
+                })
+            };
+        }
+
+        try {
+            const response = await fetch(fetchUrl, fetchOptions);
+            const data = await response.json();
+            document.getElementById('loading').style.display = 'none';
+
+            let aiHtml = "";
+            if (activeEngine === 'gemini' && data.candidates) {
+                aiHtml = data.candidates[0].content.parts[0].text;
+            } else if (activeEngine === 'deepseek' && data.choices) {
+                aiHtml = data.choices[0].message.content;
+            }
+
+            if (aiHtml) {
+                aiHtml = aiHtml.replace(/```html/g, '').replace(/```/g, '').trim();
+                document.getElementById('ai-output-box').innerHTML = aiHtml;
+                
+                // 自动切片统计
+                let lines = text.split('\n').filter(l => l.trim().length > 0);
+                let wCount = 0, sCount = 0;
+                lines.forEach(line => {
+                    if(line.trim().split(/\s+/).length > 4 || line.trim().length > 30) sCount++; else wCount++;
+                });
+                
+                saveToDatabase(text, aiHtml, part, title, customError, wCount, sCount);
+            } else {
+                document.getElementById('ai-output-box').innerHTML = `<p style="color:red">请求失败，请检查Key或网络！错误详情: ${JSON.stringify(data)}</p>`;
+            }
+        } catch (error) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('ai-output-box').innerHTML = `<p style="color:red">网络被拦截，请确保VPN开启了【全局代理】，或者检查接口状态！</p>`;
+        }
+    }
+
+    function saveToDatabase(text, resultHtml, part, title, errorText, wCount, sCount) {
+        let history = JSON.parse(localStorage.getItem('ielts_db_pro_v5')) || [];
+        if(history.length > 0 && history[0].text === text) return;
+        history.unshift({ text, result: resultHtml, part, title, errorText, wCount, sCount, time: new Date().toLocaleString() });
+        localStorage.setItem('ielts_db_pro_v5', JSON.stringify(history));
+        refreshDashboard();
+    }
+
+    function clearAllHistory() { if(confirm('确定清空数据吗？')) { localStorage.removeItem('ielts_db_pro_v5'); refreshDashboard(); } }
+</script>
+</body>
+</html>
